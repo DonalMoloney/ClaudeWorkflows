@@ -113,4 +113,15 @@ Saved workflows become `/<name>` in autocomplete. Project workflow wins on name 
 | Max 16 concurrent agents | Bounds local CPU/resource use |
 | Max 1,000 agents per run | Prevents runaway loops |
 | No `Date.now()`, `Math.random()`, `new Date()` | Would break deterministic resume |
+| Sub-agents inherit session tool allowlist | Shell commands, web fetches, and MCP tools not on the allowlist can still prompt mid-run — add them to your allowlist before a long run |
 | Plain JavaScript only (no TypeScript) | Runtime executes JS, not TS |
+
+## Troubleshooting
+
+| Mistake | Symptom | Fix |
+|---|---|---|
+| `Date.now()` / `Math.random()` / `new Date()` | Resume broken — cached results don't replay correctly | Remove entirely; pass timestamps via `args` or stamp results after the workflow returns |
+| TypeScript syntax (`: string`, `interface Foo`, `<T>`) | Runtime parse error before any agent runs | Plain JavaScript only — remove all type annotations |
+| Missing `.filter(Boolean)` after `parallel()` | `null` in results array crashes downstream `.map()` or property access | Always `.filter(Boolean)` before iterating parallel results |
+| Using `parallel()` as default | Long wall-clock time — all items wait for the slowest stage | Default to `pipeline()`; use `parallel()` only when stage N needs ALL prior results |
+| Manual retry on schema mismatch | Double-retry amplification, inflated token spend | Remove manual retry; the runtime retries internally on schema mismatch |

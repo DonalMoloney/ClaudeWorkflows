@@ -89,3 +89,25 @@ agent(`Migrate ${file} to the new API`, {
 ```
 
 The worktree is auto-cleaned if the agent makes no changes. Use sparingly — worktree setup adds ~200–500ms and disk overhead per agent.
+
+## Tool inheritance
+
+Sub-agents inherit your session's tool allowlist by default. To restrict a sub-agent further, specify `tools:` in its agent definition frontmatter. For headless `claude -p` sessions, pass `--allowedTools "Read,Grep"` to constrain each session explicitly.
+
+Shell commands, web fetches, and MCP tools not on the session allowlist can still generate permission prompts mid-workflow. Before a long run, add the tools your agents need to the allowlist to prevent mid-run interruptions.
+
+## Agent failure behaviour
+
+A sub-agent that crashes, times out, or exhausts its token budget returns `null` from `agent()`. Inside `parallel()` calls, a failed thunk resolves to `null` rather than rejecting the whole call.
+
+Always `.filter(Boolean)` before iterating results, and log what was dropped:
+
+```js
+const results = await parallel(items.map(item => () =>
+  agent(`Process ${item}`, {schema: RESULT_SCHEMA})
+))
+const valid = results.filter(Boolean)
+log(`${valid.length}/${items.length} agents completed`)
+```
+
+Never silently continue past a null result — the log line makes gaps visible in the `/workflows` progress view.

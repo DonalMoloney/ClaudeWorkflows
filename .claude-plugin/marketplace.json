@@ -1,0 +1,18 @@
+{
+  "name": "claude-workflows",
+  "owner": {
+    "name": "Donal Moloney",
+    "email": "donalmshs@gmail.com"
+  },
+  "description": "Tools for Claude Code dynamic workflows and parallel agent orchestration.",
+  "plugins": [
+    {
+      "name": "parallel-workflows",
+      "source": "./plugin",
+      "description": "Harness Claude's dynamic workflow and parallel agent orchestration to compress hours of sequential work into minutes.",
+      "homepage": "https://github.com/DonalMoloney/ClaudeWorkflows",
+      "repository": "https://github.com/DonalMoloney/ClaudeWorkflows",
+      "keywords": ["workflows", "parallel", "agents", "orchestration", "multi-agent", "automation"]
+    }
+  ]
+}

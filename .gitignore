@@ -1,0 +1,8 @@
+# Local Claude Code state (hook runtime data, machine-specific paths, personal agents)
+.claude/
+
+# Superpowers runtime state (brainstorm server pid/log)
+.superpowers/
+
+# OS / editor cruft
+.DS_Store

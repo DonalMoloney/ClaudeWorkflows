@@ -397,12 +397,13 @@ style: |
 
 # Multi-Agent<br>Workflows<br>in Claude
 
-## From turn-by-turn conversations to orchestrated systems
+## From turn-by-turn conversations to orchestrated systems — v2
 
 <!-- Speaker notes:
 OPEN COLD. Three full seconds of silence before you speak.
 "A year ago, you prompted Claude. Today, you choose an execution model."
 The shift from prompting skill to architectural thinking is the thesis of everything that follows.
+v2 adds Part 3 — the plugin layer that makes these patterns usable out of the box.
 -->
 
 ---
@@ -425,7 +426,9 @@ AGENDA (to mention verbally):
 • What Claude was already doing
 • Where that model breaks
 • The four execution models
+• The plugin that operationalises them
 • How to choose the right one
+• Patterns that work
 -->
 
 ---
@@ -858,9 +861,268 @@ Choose pipeline by default. Add barriers only when the math requires it.
 
 ---
 
+<!-- _class: impact -->
+
+# The plugin<br>is the<br>practice layer.
+
+## Skills, agents, and commands — built into every session
+
+<!-- Speaker notes:
+BRIDGE — From theory to tool.
+"The reference docs tell you what's possible. The plugin makes it the default."
+"Four skills, two agents, three commands — each one operationalises a pattern from this talk."
+This is what's new in v2.
+-->
+
+---
+
 <!-- _class: lead -->
 
 # Part 3
+## The plugin — from docs to practice
+
+---
+
+## Plugin Architecture
+
+<span class="kicker">Three layers, one purpose</span>
+
+<div class="tree">
+<span style="color:#d97757;font-weight:700">plugin/</span>
+├── <span style="color:#6a9bcc">skills/</span>           <span style="color:#6a7560">← cognitive guides — invoked by Skill tool</span>
+│   ├── <span style="color:#faf9f5">dynamic-workflows/</span>    <span style="color:#6a7560">when/how to trigger, primitives, constraints</span>
+│   ├── <span style="color:#faf9f5">parallel-patterns/</span>    <span style="color:#6a7560">adversarial verify · loop-until-dry · judge panel</span>
+│   ├── <span style="color:#faf9f5">error-handling/</span>       <span style="color:#6a7560">filter(Boolean) · schema design · drop logging</span>
+│   └── <span style="color:#faf9f5">headless-orchestration/</span> <span style="color:#6a7560">claude -p for CI/CD and shell fan-outs</span>
+│
+├── <span style="color:#788c5d">agents/</span>           <span style="color:#6a7560">← specialists auto-routed by description</span>
+│   ├── <span style="color:#faf9f5">workflow-architect.md</span> <span style="color:#6a7560">designs orchestration scripts end-to-end</span>
+│   └── <span style="color:#faf9f5">sub-agent-specialist.md</span> <span style="color:#6a7560">designs agent prompts, schemas, model tiers</span>
+│
+└── <span style="color:#d97757">commands/</span>         <span style="color:#6a7560">← instant workflows, available as /command</span>
+    ├── <span style="color:#faf9f5">orchestrate.md</span>        <span style="color:#6a7560">4-phase recipe for any complex task</span>
+    ├── <span style="color:#faf9f5">parallel-sweep.md</span>     <span style="color:#6a7560">fan-out over a list of items</span>
+    └── <span style="color:#faf9f5">workflow-review.md</span>    <span style="color:#6a7560">reviews a workflow script for correctness</span>
+</div>
+
+<!-- Speaker notes:
+ORIENTATION — Three layers, each doing something different.
+"Skills are read when Claude needs to decide HOW to do something."
+"Agents are invoked automatically when their description matches the task."
+"Commands are pre-built workflows you trigger with a slash."
+-->
+
+---
+
+## Skills: Your Cognitive Guides
+
+<span class="kicker">Invoked by the Skill tool — tell Claude how to think</span>
+
+<div class="diagram-grid cols-2" style="margin:12px 0">
+  <div class="d-box orange">
+    <span class="d-label">dynamic-workflows</span>
+    <span class="d-sub">Covers: when workflows beat subagents · script primitives · run management · cost controls · troubleshooting. Invoke when writing or debugging any workflow.</span>
+  </div>
+  <div class="d-box blue">
+    <span class="d-label">parallel-patterns</span>
+    <span class="d-sub">Five copy-paste patterns: adversarial verify · loop-until-dry · judge panel · multi-modal sweep · completeness critic. Invoke when choosing an orchestration shape.</span>
+  </div>
+  <div class="d-box green">
+    <span class="d-label">error-handling</span>
+    <span class="d-sub">Rules: always <code>.filter(Boolean)</code> after <code>parallel()</code> · log dropped agents · defensive schema design · no manual retry wrappers. Invoke at scale.</span>
+  </div>
+  <div class="d-box gray">
+    <span class="d-label">headless-orchestration</span>
+    <span class="d-sub">Shell fan-outs via <code>claude -p</code> with <code>xargs</code>, GNU parallel, or Python. Use when integrating with CI/CD or existing shell pipelines.</span>
+  </div>
+</div>
+
+<!-- Speaker notes:
+ACTIONABLE — Skills are the reference layer you pull in on demand.
+"You don't memorise all five patterns. You invoke parallel-patterns when you need to pick one."
+"error-handling is the most commonly skipped — and the most commonly regretted."
+-->
+
+---
+
+## Agents: Specialists in Every Session
+
+<span class="kicker">Auto-routed by description — no manual invocation needed</span>
+
+<div class="d-flow" style="margin:14px 0">
+  <div class="d-box orange" style="flex:1">
+    <span class="d-label">workflow-architect</span>
+    <span class="d-sub">
+      Triggered: building, debugging, or optimizing a workflow script<br><br>
+      Expertise: pipeline vs parallel decisions · phase structure · adversarial verification patterns · budget-aware scaling<br><br>
+      Tools: Read · Grep · Glob · Bash &nbsp;&nbsp; Model: Sonnet
+    </span>
+  </div>
+  <div class="d-box blue" style="flex:1">
+    <span class="d-label">sub-agent-specialist</span>
+    <span class="d-sub">
+      Triggered: defining agent prompts, tool access, or structured schemas<br><br>
+      Expertise: Role · Context · Task · Output format · Model routing (Haiku → Sonnet → Opus) · worktree isolation<br><br>
+      Tools: Read · Grep · Glob &nbsp;&nbsp; Model: Sonnet
+    </span>
+  </div>
+</div>
+
+> The **description field** is a routing rule, not a docstring. Write it as a trigger condition.
+
+<!-- Speaker notes:
+KEY INSIGHT — Agents are invoked by the system, not by you.
+"Claude reads the description field and decides whether this specialist fits the task."
+"That's why precision matters: vague descriptions get vague routing."
+"No Write tool on the sub-agent-specialist — it designs prompts, it doesn't execute them."
+-->
+
+---
+
+## Commands: Instant Workflows
+
+<span class="kicker">/orchestrate — the four-phase recipe</span>
+
+```
+/orchestrate audit every API endpoint under src/routes for missing auth checks
+```
+
+Claude runs four phases automatically:
+
+<div class="diagram-grid cols-2" style="margin:12px 0">
+  <div class="d-box orange">
+    <span class="d-label">1 — Discover</span>
+    <span class="d-sub">Map the work surface. List files, enumerate issues, gather sources. Cheap — route to Haiku.</span>
+  </div>
+  <div class="d-box blue">
+    <span class="d-label">2 — Execute</span>
+    <span class="d-sub">Fan out over discovered items in parallel. One agent per item. Use <code>isolation: 'worktree'</code> for file edits.</span>
+  </div>
+  <div class="d-box green">
+    <span class="d-label">3 — Verify</span>
+    <span class="d-sub">Adversarially check high-stakes findings. Three independent critics per claim. Only survivors reach output.</span>
+  </div>
+  <div class="d-box gray">
+    <span class="d-label">4 — Synthesize</span>
+    <span class="d-sub">Produce the final deliverable. Confirmed findings only. Summary + recommendations.</span>
+  </div>
+</div>
+
+<!-- Speaker notes:
+PRACTICAL — This is the pattern to memorise.
+"Discover → Execute → Verify → Synthesize. Every serious workflow is a variation of this."
+"/orchestrate writes and launches the script for you. You review it, add ultracode, it runs."
+After a successful run, press s in /workflows to save it as a reusable /<name> command.
+-->
+
+---
+
+## Sub-Agent Design Principles
+
+<span class="kicker">What every good agent prompt contains</span>
+
+<div class="arch-row" style="margin:12px 0">
+  <div class="arch-box hi" style="flex:3">
+    <span class="arch-label">Four parts of a scoped prompt</span>
+    <span class="arch-sub">
+      <strong style="color:var(--orange)">Role</strong> — "You are a security reviewer."<br>
+      <strong style="color:var(--orange)">Context</strong> — "Analyze src/auth/middleware.ts"<br>
+      <strong style="color:var(--orange)">Task</strong> — "Focus on JWT algorithm confusion and session fixation."<br>
+      <strong style="color:var(--orange)">Output</strong> — "Return JSON: {file, vulns: [{line, severity, fix}]}"
+    </span>
+  </div>
+  <div class="arch-box" style="flex:2">
+    <span class="arch-label">Model routing</span>
+    <span class="arch-sub">
+      <code>haiku</code> — discovery, listing, classification<br>
+      <code>sonnet</code> — analysis, review, synthesis (default)<br>
+      <code>opus</code> — adversarial verify, final synthesis<br><br>
+      Route cheap stages to Haiku. Reserve Opus for quality gates.
+    </span>
+  </div>
+</div>
+
+> Sub-agents receive **only what's in their prompt.** They share no memory with siblings.
+
+<!-- Speaker notes:
+PRACTICAL — The most common mistake is vague prompts.
+"Every piece of context missing from the prompt is context the agent will hallucinate."
+"Model routing is the single biggest lever on cost: a Haiku discovery pass on 200 files costs a fraction of a Sonnet pass."
+-->
+
+---
+
+## /workflows Interface and Saving
+
+<span class="kicker">Managing runs — and making them permanent</span>
+
+<div class="d-flow" style="margin:12px 0">
+  <div class="d-box dark" style="flex:2">
+    <span class="d-label">Keyboard controls in /workflows</span>
+    <span class="d-sub">
+      ↑ / ↓ — select phase or agent<br>
+      Enter / → — drill into phase → agent (prompt, tool calls, result)<br>
+      p — pause or resume the run<br>
+      x — stop selected agent or entire workflow<br>
+      r — restart a running agent<br>
+      s — <strong style="color:var(--orange)">save as a reusable command</strong>
+    </span>
+  </div>
+  <div class="d-box green" style="flex:1">
+    <span class="d-label">Save locations</span>
+    <span class="d-sub">
+      <code>.claude/workflows/</code><br>
+      shared with everyone who clones the repo<br><br>
+      <code>~/.claude/workflows/</code><br>
+      personal, available in every project<br><br>
+      Saved workflows appear as <code>/name</code> in autocomplete.
+    </span>
+  </div>
+</div>
+
+**Resume:** Completed agents return cached results instantly. Works within the same session.
+
+<!-- Speaker notes:
+PRACTICAL — The s shortcut is the most underused feature.
+"Every workflow you run successfully is one press of s away from becoming a reusable command."
+"Resume means a 200-agent run that gets interrupted doesn't start from zero — only incomplete agents re-run."
+-->
+
+---
+
+## Headless Orchestration: claude -p
+
+<span class="kicker">For CI/CD pipelines and shell fan-outs</span>
+
+```bash
+# Fan out 8 parallel Claude sessions over TypeScript files
+find src/ -name "*.ts" | xargs -P 8 -I{} \
+  claude -p "Review {} for missing error handling. JSON: {\"file\":\"{}\",\"issues\":[]}" \
+  --output-format json >> results.jsonl
+
+# Aggregate: show only files with issues
+jq -s '[.[] | select(.issues | length > 0)]' results.jsonl
+```
+
+| | Dynamic Workflows | Headless `claude -p` |
+|---|---|---|
+| **Resume** | Yes — cached results | No — each run independent |
+| **Progress** | `/workflows` drill-down | Shell stdout |
+| **Verification** | Adversarial, built-in | Manual shell logic |
+| **Best for** | Large resumable audits | CI pipelines, simple fan-outs |
+
+<!-- Speaker notes:
+BRIDGE — Workflows aren't the only way.
+"For a GitHub Actions job that reviews every PR, headless is simpler and integrates cleanly."
+"For a 200-file migration you want to resume, the workflow runtime is the right tool."
+Choose by resumability and verification needs.
+-->
+
+---
+
+<!-- _class: lead -->
+
+# Part 4
 ## The decision framework
 
 ---
@@ -976,20 +1238,21 @@ CREDIBILITY — Knowing limits builds trust.
 │
 ├── <span style="color:#d97757">plugin/</span>
 │   ├── <span style="color:#6a9bcc">agents/</span>  <span style="color:#6a7560">workflow-architect · sub-agent-specialist</span>
-│   ├── <span style="color:#6a9bcc">commands/</span>  <span style="color:#6a7560">orchestrate · parallel-sweep</span>
-│   └── <span style="color:#6a9bcc">skills/</span>  <span style="color:#6a7560">dynamic-workflows · parallel-patterns · headless-orchestration</span>
+│   ├── <span style="color:#6a9bcc">commands/</span>  <span style="color:#6a7560">orchestrate · parallel-sweep · workflow-review</span>
+│   └── <span style="color:#6a9bcc">skills/</span>  <span style="color:#6a7560">dynamic-workflows · parallel-patterns · error-handling · headless-orchestration</span>
 │
 ├── <span style="color:#d97757">.claude/agents/</span>  <span style="color:#6a7560">← session-scoped specialists</span>
 │   ├── <span style="color:#788c5d">analyze.md</span>  · <span style="color:#788c5d">planning.md</span>  · <span style="color:#788c5d">html-css.md</span>  · <span style="color:#788c5d">marp.md</span>
 │
 └── <span style="color:#d97757">presentations/</span>
-    └── <span style="color:#788c5d">multi-agent-workflows.md</span>  <span style="color:#6a7560">← you are here</span>
+    ├── <span style="color:#788c5d">multi-agent-workflows.md</span>  <span style="color:#6a7560">← v1</span>
+    └── <span style="color:#788c5d">multi-agent-workflows-v2.md</span>  <span style="color:#6a7560">← you are here</span>
 </div>
 
 <!-- Speaker notes:
 ORIENTATION — Ground the abstract in something concrete.
-"Orange = reference docs. Blue = plugin layer. Green = session agents. This deck was generated by the marp agent."
-Self-referential is intentional — it demonstrates the model in action.
+"Orange = reference docs. Blue = plugin layer. Green = session agents."
+"The plugin is what makes the patterns from the reference docs available as defaults — not extras you have to remember."
 -->
 
 ---
@@ -1004,7 +1267,7 @@ Self-referential is intentional — it demonstrates the model in action.
   <div class="d-arrow">→</div>
   <div class="d-box blue">
     <span class="d-label">Plugin</span>
-    <span class="d-sub">Skills, agents, and commands that operationalise the patterns from the docs.</span>
+    <span class="d-sub">Skills, agents, and commands that operationalise the patterns from the docs. The practice layer.</span>
   </div>
 </div>
 <div class="d-flow" style="margin:8px 0">
@@ -1022,14 +1285,15 @@ Self-referential is intentional — it demonstrates the model in action.
 <!-- Speaker notes:
 META — Audiences appreciate the self-referential.
 "The tool used to make this presentation is documented in this presentation."
-"This is what a well-structured Claude Code project looks like — agents are part of the codebase."
+"The plugin skills described in Part 3 were active when this deck was generated."
+"This is what a well-structured Claude Code project looks like — agents and skills are part of the codebase."
 -->
 
 ---
 
 <!-- _class: lead -->
 
-# Part 4
+# Part 5
 ## Patterns that work
 
 ---
@@ -1095,6 +1359,36 @@ SUBTLE BUT CRITICAL — Easy to get wrong.
 
 ---
 
+## Error Handling at Scale
+
+<span class="kicker">Writing workflows that tolerate agent failures</span>
+
+```javascript
+// agent() returns null on timeout, tool denial, or schema failure
+const results = await parallel(items.map(item => () =>
+  agent(`Process ${item}`, { schema: RESULT_SCHEMA })
+))
+
+// Always filter — a single null crashes .map() or property access
+const valid = results.filter(Boolean)
+
+// Log what was dropped — never silently continue
+if (valid.length < results.length) {
+  log(`[warn] ${results.length - valid.length} agents returned null — coverage incomplete`)
+}
+```
+
+> **No manual retry wrappers.** The runtime retries schema mismatches internally. Adding your own wrapper creates double-retry amplification.
+
+<!-- Speaker notes:
+DEFENSIVE — Failures at scale are expected, not exceptional.
+"A 200-agent workflow will have failures. Design for it from the start."
+"The log line is the most important line — it makes dropped coverage visible in /workflows."
+Schema retry is built in. Manual retry on top multiplies cost without improving quality.
+-->
+
+---
+
 ## Getting Started
 
 <span class="kicker">Four entry points — in order of investment</span>
@@ -1104,19 +1398,28 @@ SUBTLE BUT CRITICAL — Easy to get wrong.
     <span class="d-label">1 — Bundled workflow</span>
     <span class="d-sub"><code>/deep-research What changed in the Node.js permission model between v20 and v22?</code><br>Zero setup. Run now.</span>
   </div>
+  <div class="d-box blue">
+    <span class="d-label">2 — Plugin command</span>
+    <span class="d-sub"><code>/orchestrate &lt;task description&gt;</code><br>Claude designs a 4-phase workflow, shows you the script, and launches it with <code>ultracode</code>.</span>
+  </div>
+  <div class="d-box green">
+    <span class="d-label">3 — Write a custom subagent</span>
+    <span class="d-sub">Add <code>.claude/agents/your-specialist.md</code> with a precise description. It auto-invokes when the task matches.</span>
+  </div>
   <div class="d-box gray">
-    <span class="d-label">3 — Session-wide orchestration</span>
+    <span class="d-label">4 — Session-wide orchestration</span>
     <span class="d-sub"><code>/effort ultracode</code> — Claude evaluates every request and deploys workflows automatically.</span>
   </div>
 </div>
 
-Start at 1. Graduate to 3.
+Start at 1. Graduate to 4.
 
 <!-- Speaker notes:
 CALL TO ACTION — Something to do today.
-"You can run step 1 right now. Don't skip to 3 before you've seen a few workflow outputs."
-"Build custom subagents alongside — they're the primitives workflows compose from."
-ALSO SHOW (if time): Keyword trigger — ultracode: audit every API endpoint under src/routes/ for missing auth checks. Natural language (v2.1.160+) — Use a workflow to migrate all fetch() calls to the new HTTP client.
+"You can run step 1 right now."
+"Step 2 uses the plugin you just learned about — /orchestrate is the fastest path to a custom workflow."
+"Step 3 is the highest ROI: one subagent definition, used on every PR forever."
+"Don't skip to 4 before you've seen a few workflow outputs."
 -->
 
 ---
@@ -1140,16 +1443,19 @@ ALSO SHOW (if time): Keyword trigger — ultracode: audit every API endpoint und
   </div>
 </div>
 
+The plugin gives you these patterns **as defaults, not extras** —  
+skills you invoke, agents that self-select, commands that write the scripts.
+
 The shift isn't about using **more AI.**  
 It's about choosing the **execution model that fits the structure of your problem.**
 
 <!-- Speaker notes:
 SYNTHESIS — Bring it home.
 "Four models. Each solves a different structural problem."
+"The plugin bridges the gap between knowing the patterns and using them by default."
 "The skill isn't knowing all four — it's knowing which question finds the right one."
 "Who holds the plan? Do workers need to talk? Is the partition known?"
 Answer those three. The model selects itself.
-CLOSE: "If the problem's shape is unknown — let the script discover it. If the shape is known — encode it in a custom subagent and never think about it again."
 -->
 
 ---

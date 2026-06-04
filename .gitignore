@@ -6,3 +6,10 @@
 
 # OS / editor cruft
 .DS_Store
+
+# Office temp/lock files
+~$*
+
+# Generated presentation binaries (regenerable from the .md source)
+*.pptx
+presentations/*.png

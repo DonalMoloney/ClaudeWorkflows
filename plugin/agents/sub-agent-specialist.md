@@ -92,7 +92,7 @@ The worktree is auto-cleaned if the agent makes no changes. Use sparingly — wo
 
 ## Tool inheritance
 
-Sub-agents inherit your session's tool allowlist by default. To restrict a sub-agent further, specify `tools:` in its agent definition frontmatter. For headless `claude -p` sessions, pass `--allowedTools "Read,Grep"` to constrain each session explicitly.
+Sub-agents spawned by `agent()` in a workflow script inherit your session's tool allowlist — there is no inline `tools:` key on an `agent()` call. To restrict what script sub-agents can do, configure the session allowlist before starting the run. For headless `claude -p` sessions, pass `--allowedTools "Read,Grep"` to constrain each session explicitly.
 
 Shell commands, web fetches, and MCP tools not on the session allowlist can still generate permission prompts mid-workflow. Before a long run, add the tools your agents need to the allowlist to prevent mid-run interruptions.
 

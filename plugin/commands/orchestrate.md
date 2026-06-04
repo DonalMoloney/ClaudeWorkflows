@@ -1,6 +1,7 @@
 ---
 name: orchestrate
 description: Design and launch a dynamic workflow for a complex task. Claude writes a JavaScript orchestration script, fans it out across parallel agents, and synthesizes results — compressing sequential hours into minutes.
+version: 1.0.0
 ---
 
 When the user runs `/orchestrate <task description>`, follow these steps.

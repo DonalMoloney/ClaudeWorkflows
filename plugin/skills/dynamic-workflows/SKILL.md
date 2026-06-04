@@ -1,6 +1,6 @@
 ---
 name: Dynamic Workflows
-description: Use this skill when the user wants to understand, trigger, write, manage, or debug a Claude Code dynamic workflow. Covers: when workflows beat subagents, how to trigger them, what the script primitives do, how to save and resume runs, and cost management.
+description: Use this skill when the user wants to understand, trigger, write, manage, or debug a Claude Code dynamic workflow. Covers when workflows beat subagents, how to trigger them, what the script primitives do, how to save and resume runs, and cost management.
 version: 1.0.0
 ---
 
